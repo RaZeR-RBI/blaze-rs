@@ -1,22 +1,15 @@
 extern crate blaze_rs;
 
-pub mod bmp;
-pub mod helpers;
-pub mod test_blend_modes;
-pub mod test_draw_dynamic;
-pub mod test_draw_static;
-pub mod test_init_shutdown;
-pub mod test_png_loading;
-
+mod common;
 
 #[cfg(test)]
 pub(crate) mod test {
-    use crate::helpers::*;
-    use crate::test_blend_modes::*;
-    use crate::test_draw_dynamic::*;
-    use crate::test_draw_static::*;
-    use crate::test_init_shutdown::*;
-    use crate::test_png_loading::*;
+    use crate::common::helpers::*;
+    use crate::common::test_blend_modes::*;
+    use crate::common::test_draw_dynamic::*;
+    use crate::common::test_draw_static::*;
+    use crate::common::test_init_shutdown::*;
+    use crate::common::test_png_loading::*;
     use blaze_rs::*;
     use sdl2::sys::SDL_GL_GetProcAddress;
     use sdl2::video::GLProfile;

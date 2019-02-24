@@ -1,5 +1,5 @@
 #[cfg(test)]
-use crate::helpers::*;
+use super::helpers::*;
 use blaze_rs::blend::*;
 use blaze_rs::dynamic::*;
 use blaze_rs::texture::*;

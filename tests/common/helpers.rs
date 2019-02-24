@@ -1,6 +1,6 @@
-use crate::bmp::*;
+use super::bmp::*;
 use blaze_rs::*;
-use blaze_rs::texture::save_screenshot;
+use blaze_rs::texture::*;
 
 pub const WINDOW_WIDTH: u32 = 512;
 pub const WINDOW_HEIGHT: u32 = 512;
