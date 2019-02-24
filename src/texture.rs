@@ -51,6 +51,23 @@ enum_from_primitive! {
     }
 }
 
+enum_from_primitive! {
+    #[derive(Debug, PartialEq)]
+    pub enum TextureFilter {
+        Nearest = BLZ_TextureFilter_NEAREST as isize,
+        Linear = BLZ_TextureFilter_LINEAR as isize,
+    }
+}
+
+enum_from_primitive! {
+    #[derive(Debug, PartialEq)]
+    pub enum TextureWrap {
+        ClampToEdge = BLZ_TextureWrap_CLAMP_TO_EDGE as isize,
+        Repeat = BLZ_TextureWrap_REPEAT as isize,
+        MirroredRepeat = BLZ_TextureWrap_MIRRORED_REPEAT as isize,
+    }
+}
+
 impl<'a> Drop for Texture<'a> {
     fn drop(&mut self) {
         unsafe {
@@ -79,6 +96,24 @@ fn path_to_ptr(path: &str) -> Result<CString, String> {
 }
 
 impl<'a> Texture<'a> {
+    pub fn set_filtering(
+        &self,
+        minification: TextureFilter,
+        magnification: TextureFilter,
+    ) -> CallResult {
+        unsafe {
+            wrap_result(BLZ_SetTextureFiltering(
+                self.raw,
+                minification as u32,
+                magnification as u32,
+            ))
+        }
+    }
+
+    pub fn set_wrap(&self, x: TextureWrap, y: TextureWrap) -> CallResult {
+        unsafe { wrap_result(BLZ_SetTextureWrap(self.raw, x as u32, y as u32)) }
+    }
+
     pub fn from_memory(
         bytes: &Bytes,
         channels: ImageChannels,
@@ -131,6 +166,20 @@ impl<'a> Texture<'a> {
                 ));
             } else {
                 return Err("Invalid path".to_owned());
+            }
+        }
+    }
+
+    pub fn get_max_slots() -> u32 {
+        unsafe { BLZ_GetMaxTextureSlots() as u32 }
+    }
+
+    pub fn bind(texture: Option<&Texture>, slot: u32) -> CallResult {
+        unsafe {
+            if let Some(tex) = texture {
+                wrap_result(BLZ_BindTexture(tex.raw, slot as i32))
+            } else {
+                wrap_result(BLZ_BindTexture(std::ptr::null_mut(), slot as i32))
             }
         }
     }

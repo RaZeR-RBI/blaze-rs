@@ -10,6 +10,7 @@ extern crate enum_primitive;
 
 pub mod blend;
 pub mod dynamic;
+pub mod immediate;
 pub mod r#static;
 pub mod texture;
 

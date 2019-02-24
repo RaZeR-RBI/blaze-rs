@@ -1,7 +1,7 @@
 use crate::internal::*;
 
 enum_from_primitive! {
-    #[derive(Debug, PartialEq)]
+    #[derive(Debug, PartialEq, Copy, Clone)]
     pub enum BlendFactor
     {
         Zero = GL_ZERO as isize,
@@ -17,7 +17,7 @@ enum_from_primitive! {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub struct BlendMode
 {
     pub src: BlendFactor,
