@@ -24,21 +24,6 @@ bitflags! {
     }
 }
 
-pub fn create_batch<'a>(options: SpriteBatchOpts) -> Result<SpriteBatch<'a>, String> {
-    unsafe {
-        let ptr = BLZ_CreateBatch(
-            options.max_buckets as i32,
-            options.max_sprites_per_bucket as i32,
-            options.flags.bits(),
-        );
-        if ptr.is_null() {
-            return Err(try_get_err());
-        } else {
-            return Ok(SpriteBatch { raw: ptr, _marker: PhantomData, options: options });
-        }
-    }
-}
-
 impl<'a> Drop for SpriteBatch<'a> {
     fn drop(&mut self) {
         unsafe {
@@ -48,7 +33,21 @@ impl<'a> Drop for SpriteBatch<'a> {
 }
 
 impl<'s> SpriteBatch<'s> {
-    pub fn draw<'t>(
+    pub fn new(options: SpriteBatchOpts) -> Result<SpriteBatch<'s>, String> {
+        unsafe {
+            let ptr = BLZ_CreateBatch(
+                options.max_buckets as i32,
+                options.max_sprites_per_bucket as i32,
+                options.flags.bits(),
+            );
+            if ptr.is_null() {
+                return Err(try_get_err());
+            } else {
+                return Ok(SpriteBatch { raw: ptr, _marker: PhantomData, options: options });
+            }
+        }
+    }
+    pub fn draw<'t: 's>(
         &self,
         texture: &'t Texture,
         position: Vector2,
@@ -74,7 +73,7 @@ impl<'s> SpriteBatch<'s> {
         }
     }
 
-    pub fn lower_draw<'t>(&self, texture: &'t Texture, quad: &Quad) -> CallResult {
+    pub fn lower_draw<'t: 's>(&self, texture: &'t Texture, quad: &Quad) -> CallResult {
         unsafe { wrap_result(BLZ_LowerDraw(self.raw, texture.id, quad)) }
     }
 

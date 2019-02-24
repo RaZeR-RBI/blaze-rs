@@ -4,6 +4,7 @@ use bytes::*;
 use std::ffi::*;
 use std::marker::PhantomData;
 
+#[derive(Debug, PartialEq)]
 pub struct Texture<'a> {
     pub id: u32,
     pub width: u32,
