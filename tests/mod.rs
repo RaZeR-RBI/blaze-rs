@@ -6,9 +6,11 @@ mod common;
 pub(crate) mod test {
     use crate::common::helpers::*;
     use crate::common::test_blend_modes::*;
+    use crate::common::test_custom_shader::*;
     use crate::common::test_draw_dynamic::*;
     use crate::common::test_draw_static::*;
     use crate::common::test_init_shutdown::*;
+    use crate::common::test_multitexturing::*;
     use crate::common::test_png_loading::*;
     use blaze_rs::*;
     use sdl2::sys::SDL_GL_GetProcAddress;
@@ -38,6 +40,8 @@ pub(crate) mod test {
         test_draw_dynamic(&window);
         test_draw_static(&window);
         test_blend_modes(&window);
+        test_custom_shader(&window);
+        test_multitexturing(&window);
         /* TODO: Implement tests from C version */
         assert!(true);
     }

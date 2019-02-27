@@ -59,7 +59,7 @@ impl<'b, 't: 'b> StaticBatch<'b, 't> {
         }
     }
 
-    pub fn lower_draw(&self, quad: &Quad) -> CallResult {
+    pub fn lower_draw(&self, quad: &SpriteQuad) -> CallResult {
         unsafe { wrap_result(BLZ_LowerDrawStatic(self.raw, quad)) }
     }
 

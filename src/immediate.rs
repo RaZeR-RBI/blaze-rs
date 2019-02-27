@@ -29,7 +29,7 @@ impl Immediate {
         }
     }
 
-    pub fn lower_draw<'t>(texture: &'t Texture, quad: &Quad) -> CallResult {
+    pub fn lower_draw<'t>(texture: &'t Texture, quad: &SpriteQuad) -> CallResult {
         unsafe { wrap_result(BLZ_LowerDrawImmediate(texture.id, quad)) }
     }
 }

@@ -20,7 +20,7 @@ mod internal;
 
 use crate::internal::wrap_result;
 pub use internal::BLZ_Rectangle as Rectangle;
-pub use internal::BLZ_SpriteQuad as Quad;
+pub use internal::BLZ_SpriteQuad as SpriteQuad;
 pub use internal::BLZ_Vector2 as Vector2;
 pub use internal::BLZ_Vector4 as Vector4;
 pub use internal::BLZ_Vertex as Vertex;

@@ -73,7 +73,7 @@ impl<'s> SpriteBatch<'s> {
         }
     }
 
-    pub fn lower_draw<'t: 's>(&self, texture: &'t Texture, quad: &Quad) -> CallResult {
+    pub fn lower_draw<'t: 's>(&self, texture: &'t Texture, quad: &SpriteQuad) -> CallResult {
         unsafe { wrap_result(BLZ_LowerDraw(self.raw, texture.id, quad)) }
     }
 
