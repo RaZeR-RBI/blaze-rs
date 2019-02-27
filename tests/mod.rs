@@ -12,6 +12,7 @@ pub(crate) mod test {
     use crate::common::test_init_shutdown::*;
     use crate::common::test_multitexturing::*;
     use crate::common::test_png_loading::*;
+    use crate::common::test_render_target::*;
     use blaze_rs::*;
     use sdl2::sys::SDL_GL_GetProcAddress;
     use sdl2::video::GLProfile;
@@ -42,7 +43,6 @@ pub(crate) mod test {
         test_blend_modes(&window);
         test_custom_shader(&window);
         test_multitexturing(&window);
-        /* TODO: Implement tests from C version */
-        assert!(true);
+        test_render_target(&window);
     }
 }

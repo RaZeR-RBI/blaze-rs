@@ -10,7 +10,8 @@ pub struct Texture<'a> {
     pub width: u32,
     pub height: u32,
     pub raw: *mut BLZ_Texture,
-    _marker: PhantomData<&'a ()>,
+    pub _marker: PhantomData<&'a ()>,
+    pub no_free: bool,
 }
 
 enum_from_primitive! {
@@ -71,7 +72,9 @@ enum_from_primitive! {
 impl<'a> Drop for Texture<'a> {
     fn drop(&mut self) {
         unsafe {
-            BLZ_FreeTexture(self.raw);
+            if !self.no_free {
+                BLZ_FreeTexture(self.raw);
+            }
         }
     }
 }
@@ -87,6 +90,7 @@ unsafe fn from_ptr<'a>(ptr: *mut BLZ_Texture) -> Result<Texture<'a>, String> {
             id: tex.id,
             width: tex.width as u32,
             height: tex.height as u32,
+            no_free: false,
         })
     }
 }

@@ -57,4 +57,5 @@ pub fn test_custom_shader(window: &Window) {
         window.gl_swap_window(); 
     }
     validate_output("test_custom_shader", 0.999);
+    Shader::get_default().make_current().unwrap();
 }

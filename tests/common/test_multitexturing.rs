@@ -77,5 +77,9 @@ pub fn test_multitexturing(window: &Window) {
         Immediate::lower_draw(&tex_ignored, &TEST_QUAD).unwrap();
         window.gl_swap_window();
     }
+    for i in 0..textures.len() {
+        Texture::bind(None, i as u32).unwrap();
+    }
     validate_output("test_multitexturing", 0.999);
+    Shader::get_default().make_current().unwrap();
 }

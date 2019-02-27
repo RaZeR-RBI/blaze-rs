@@ -7,3 +7,4 @@ pub mod test_draw_static;
 pub mod test_init_shutdown;
 pub mod test_multitexturing;
 pub mod test_png_loading;
+pub mod test_render_target;
