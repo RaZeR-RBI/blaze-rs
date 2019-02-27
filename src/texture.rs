@@ -4,7 +4,7 @@ use bytes::*;
 use std::ffi::*;
 use std::marker::PhantomData;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Texture<'a> {
     pub id: u32,
     pub width: u32,
@@ -15,6 +15,7 @@ pub struct Texture<'a> {
 }
 
 enum_from_primitive! {
+    #[cfg_attr(tarpaulin, skip)]
     #[derive(Debug, PartialEq)]
     pub enum ImageChannels
     {
@@ -27,7 +28,8 @@ enum_from_primitive! {
 }
 
 bitflags! {
-   pub struct ImageFlags: u32 {
+    #[cfg_attr(tarpaulin, skip)]
+    pub struct ImageFlags: u32 {
         const None = 0;
         const PowerOfTwo  = BLZ_ImageFlags_POWER_OF_TWO;
         const Mipmaps = BLZ_ImageFlags_MIPMAPS;
@@ -39,10 +41,11 @@ bitflags! {
         const NTSCSafeRGB = BLZ_ImageFlags_NTSC_SAFE_RGB;
         const CoCgY = BLZ_ImageFlags_CoCg_Y;
         const TextureRectangle = BLZ_ImageFlags_TEXTURE_RECTANGLE;
-   }
+    }
 }
 
 enum_from_primitive! {
+    #[cfg_attr(tarpaulin, skip)]
     #[derive(Debug, PartialEq)]
     pub enum SaveImageFormat
     {
@@ -53,6 +56,7 @@ enum_from_primitive! {
 }
 
 enum_from_primitive! {
+    #[cfg_attr(tarpaulin, skip)]
     #[derive(Debug, PartialEq)]
     pub enum TextureFilter {
         Nearest = BLZ_TextureFilter_NEAREST as isize,
@@ -61,6 +65,7 @@ enum_from_primitive! {
 }
 
 enum_from_primitive! {
+    #[cfg_attr(tarpaulin, skip)]
     #[derive(Debug, PartialEq)]
     pub enum TextureWrap {
         ClampToEdge = BLZ_TextureWrap_CLAMP_TO_EDGE as isize,

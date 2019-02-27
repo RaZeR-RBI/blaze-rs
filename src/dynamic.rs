@@ -17,6 +17,7 @@ pub struct SpriteBatchOpts {
 }
 
 bitflags! {
+    #[cfg_attr(tarpaulin, skip)]
     pub struct InitFlags: u32
     {
         const Default = BLZ_InitFlags_DEFAULT;

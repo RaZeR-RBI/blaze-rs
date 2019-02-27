@@ -1,0 +1,319 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+  margin: 10px;
+  padding: 0;
+}
+
+.files-list {
+  margin: 10px 0 0;
+  width: 100%;
+  border-collapse: collapse;
+}
+.files-list__head {
+  border: 1px solid #999;
+}
+.files-list__head > tr > th {
+  padding: 10px;
+  border: 1px solid #999;
+  text-align: left;
+  font-weight: normal;
+  background: #ddd;
+}
+.files-list__body {
+}
+.files-list__file {
+  cursor: pointer;
+}
+.files-list__file:hover {
+  background: #ccf;
+}
+.files-list__file > td {
+  padding: 10px;
+  border: 1px solid #999;
+}
+.files-list__file > td:first-child::before {
+  content: '\01F4C4';
+  margin-right: 1em;
+}
+.files-list__file_low {
+  background: #fcc;
+}
+.files-list__file_medium {
+  background: #ffc;
+}
+.files-list__file_high {
+  background: #cfc;
+}
+.files-list__file_folder > td:first-child::before {
+  content: '\01F4C1';
+  margin-right: 1em;
+}
+
+.file-header {
+  border: 1px solid #999;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.file-header__back {
+  margin: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  flex-grow: 0;
+  text-decoration: underline;
+  color: #338;
+}
+
+.file-header__name {
+  margin: 10px;
+  flex-shrink: 2;
+  flex-grow: 2;
+}
+
+.file-header__stat {
+  margin: 10px;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.file-content {
+  margin: 10px 0 0;
+  border: 1px solid #999;
+  padding: 10px;
+}
+
+.code-line {
+  margin: 0;
+  padding: 0.3em;
+  height: 1em;
+}
+.code-line_covered {
+  background: #cfc;
+}
+.code-line_uncovered {
+  background: #fcc;
+}
+</style>
+</head>
+<body>
+    <div id="root"></div>
+    <script>var data = {"files":[{"path":["/","home","razer","vscode-projects","blaze-rs","src","blend.rs"],"content":"use crate::internal::*;\n\nenum_from_primitive! {\n    #[cfg_attr(tarpaulin, skip)]\n    #[derive(Debug, PartialEq, Copy, Clone)]\n    pub enum BlendFactor\n    {\n        Zero = GL_ZERO as isize,\n        One = GL_ONE as isize,\n        SrcColor = GL_SRC_COLOR as isize,\n        OneMinusSrcColor = GL_ONE_MINUS_SRC_COLOR as isize,\n        DstColor = GL_DST_COLOR as isize,\n        OneMinusDstColor = GL_ONE_MINUS_DST_COLOR as isize,\n        SrcAlpha = GL_SRC_ALPHA as isize,\n        OneMinusSrcAlpha = GL_ONE_MINUS_SRC_ALPHA as isize,\n        DstAlpha = GL_DST_ALPHA as isize,\n        OneMinusDstAlpha = GL_ONE_MINUS_DST_ALPHA as isize\n    }\n}\n\n#[derive(Debug, PartialEq, Copy, Clone)]\npub struct BlendMode\n{\n    pub src: BlendFactor,\n    pub dst: BlendFactor\n}\n\npub const NORMAL: BlendMode = BlendMode {\n    src: BlendFactor::SrcAlpha,\n    dst: BlendFactor::OneMinusSrcAlpha\n};\n\npub const ADDITIVE: BlendMode = BlendMode {\n    src: BlendFactor::One,\n    dst: BlendFactor::One\n};\n\npub const MULTIPLY: BlendMode = BlendMode {\n    src: BlendFactor::DstColor,\n    dst: BlendFactor::Zero\n};\n\nimpl From<BlendMode> for BLZ_BlendFunc {\n    fn from(mode: BlendMode) -> BLZ_BlendFunc {\n        BLZ_BlendFunc {\n            source: mode.src as u32,\n            destination: mode.dst as u32\n        }\n    }\n}\n\n\npub fn set_blend_mode(mode: BlendMode) {\n    unsafe { BLZ_SetBlendMode(mode.into()); }\n}\n","traces":[{"line":5,"address":4255488,"length":1,"stats":{"Line":0}},{"line":44,"address":4260912,"length":1,"stats":{"Line":1}},{"line":46,"address":4260931,"length":1,"stats":{"Line":1}},{"line":47,"address":4260935,"length":1,"stats":{"Line":1}},{"line":53,"address":4255408,"length":1,"stats":{"Line":1}},{"line":54,"address":4255428,"length":1,"stats":{"Line":1}}],"covered":5,"coverable":6},{"path":["/","home","razer","vscode-projects","blaze-rs","src","dynamic.rs"],"content":"use crate::internal::*;\nuse crate::texture::*;\nuse crate::*;\nuse std::marker::PhantomData;\n\npub struct SpriteBatch<'a> {\n    raw: *mut BLZ_SpriteBatch,\n    _marker: PhantomData<&'a ()>,\n    options: SpriteBatchOpts,\n}\n\n#[derive(Debug, Clone, PartialEq, Eq)]\npub struct SpriteBatchOpts {\n    pub max_buckets: u32,\n    pub max_sprites_per_bucket: u32,\n    pub flags: InitFlags,\n}\n\nbitflags! {\n    #[cfg_attr(tarpaulin, skip)]\n    pub struct InitFlags: u32\n    {\n        const Default = BLZ_InitFlags_DEFAULT;\n        const NoBuffering = BLZ_InitFlags_NO_BUFFERING;\n    }\n}\n\nimpl<'a> Drop for SpriteBatch<'a> {\n    fn drop(&mut self) {\n        unsafe {\n            BLZ_FreeBatch(self.raw);\n        }\n    }\n}\n\nimpl<'s> SpriteBatch<'s> {\n    pub fn new(options: SpriteBatchOpts) -> Result<SpriteBatch<'s>, String> {\n        unsafe {\n            let ptr = BLZ_CreateBatch(\n                options.max_buckets as i32,\n                options.max_sprites_per_bucket as i32,\n                options.flags.bits(),\n            );\n            if ptr.is_null() {\n                return Err(try_get_err());\n            } else {\n                return Ok(SpriteBatch { raw: ptr, _marker: PhantomData, options: options });\n            }\n        }\n    }\n    pub fn draw<'t: 's>(\n        &self,\n        texture: &'t Texture,\n        position: Vector2,\n        srcRectangle: Option<Rectangle>,\n        rotationInRadians: f32,\n        origin: Option<Vector2>,\n        scale: Option<Vector2>,\n        color: Color,\n        flip: SpriteFlip,\n    ) -> CallResult {\n        unsafe {\n            wrap_result(BLZ_Draw(\n                self.raw,\n                texture.raw,\n                position,\n                srcRectangle.as_raw(),\n                rotationInRadians,\n                origin.as_raw(),\n                scale.as_raw(),\n                color.into(),\n                flip as u32,\n            ))\n        }\n    }\n\n    pub fn lower_draw<'t: 's>(&self, texture: &'t Texture, quad: &SpriteQuad) -> CallResult {\n        unsafe { wrap_result(BLZ_LowerDraw(self.raw, texture.id, quad)) }\n    }\n\n    pub fn present(&self) -> CallResult {\n        unsafe { wrap_result(BLZ_Present(self.raw)) }\n    }\n\n    pub fn get_options(&self) -> &SpriteBatchOpts {\n        &self.options\n    }\n}\n","traces":[{"line":19,"address":4250232,"length":1,"stats":{"Line":0}},{"line":29,"address":4245216,"length":1,"stats":{"Line":1}},{"line":31,"address":4245225,"length":1,"stats":{"Line":1}},{"line":37,"address":4245248,"length":1,"stats":{"Line":1}},{"line":39,"address":4245314,"length":1,"stats":{"Line":1}},{"line":40,"address":4245255,"length":1,"stats":{"Line":1}},{"line":41,"address":4245257,"length":1,"stats":{"Line":1}},{"line":42,"address":4245260,"length":1,"stats":{"Line":1}},{"line":44,"address":4245325,"length":1,"stats":{"Line":1}},{"line":45,"address":4245349,"length":1,"stats":{"Line":1}},{"line":46,"address":null,"length":0,"stats":{"Line":0}},{"line":47,"address":4245361,"length":1,"stats":{"Line":1}},{"line":51,"address":4245504,"length":1,"stats":{"Line":1}},{"line":63,"address":4245775,"length":1,"stats":{"Line":1}},{"line":64,"address":4245567,"length":1,"stats":{"Line":1}},{"line":65,"address":4245575,"length":1,"stats":{"Line":1}},{"line":66,"address":4245583,"length":1,"stats":{"Line":1}},{"line":67,"address":4245606,"length":1,"stats":{"Line":1}},{"line":68,"address":4245666,"length":1,"stats":{"Line":1}},{"line":69,"address":4245686,"length":1,"stats":{"Line":1}},{"line":70,"address":4245701,"length":1,"stats":{"Line":1}},{"line":71,"address":4245716,"length":1,"stats":{"Line":1}},{"line":72,"address":4245760,"length":1,"stats":{"Line":1}},{"line":77,"address":4245904,"length":1,"stats":{"Line":0}},{"line":78,"address":4245926,"length":1,"stats":{"Line":0}},{"line":81,"address":4246000,"length":1,"stats":{"Line":1}},{"line":82,"address":4246012,"length":1,"stats":{"Line":1}},{"line":85,"address":4246080,"length":1,"stats":{"Line":1}},{"line":86,"address":4246085,"length":1,"stats":{"Line":1}}],"covered":25,"coverable":29},{"path":["/","home","razer","vscode-projects","blaze-rs","src","immediate.rs"],"content":"use crate::internal::*;\nuse crate::texture::*;\nuse crate::*;\n\npub struct Immediate {}\n\nimpl Immediate {\n    pub fn draw<'t>(\n        texture: &'t Texture,\n        position: Vector2,\n        srcRectangle: Option<Rectangle>,\n        rotationInRadians: f32,\n        origin: Option<Vector2>,\n        scale: Option<Vector2>,\n        color: Color,\n        flip: SpriteFlip,\n    ) -> CallResult {\n        unsafe {\n            wrap_result(BLZ_DrawImmediate(\n                texture.raw,\n                position,\n                srcRectangle.as_raw(),\n                rotationInRadians,\n                origin.as_raw(),\n                scale.as_raw(),\n                color.into(),\n                flip as u32,\n            ))\n        }\n    }\n\n    pub fn lower_draw<'t>(texture: &'t Texture, quad: &SpriteQuad) -> CallResult {\n        unsafe { wrap_result(BLZ_LowerDrawImmediate(texture.id, quad)) }\n    }\n}\n","traces":[{"line":8,"address":4237184,"length":1,"stats":{"Line":1}},{"line":19,"address":4237411,"length":1,"stats":{"Line":1}},{"line":20,"address":4237225,"length":1,"stats":{"Line":1}},{"line":21,"address":4237233,"length":1,"stats":{"Line":1}},{"line":22,"address":4237250,"length":1,"stats":{"Line":1}},{"line":23,"address":4237305,"length":1,"stats":{"Line":1}},{"line":24,"address":4237322,"length":1,"stats":{"Line":1}},{"line":25,"address":4237337,"length":1,"stats":{"Line":1}},{"line":26,"address":4237352,"length":1,"stats":{"Line":1}},{"line":27,"address":4237396,"length":1,"stats":{"Line":1}},{"line":32,"address":4237536,"length":1,"stats":{"Line":1}},{"line":33,"address":4237553,"length":1,"stats":{"Line":1}}],"covered":12,"coverable":12},{"path":["/","home","razer","vscode-projects","blaze-rs","src","lib.rs"],"content":"#![allow(non_upper_case_globals)]\n#![allow(non_camel_case_types)]\n#![allow(non_snake_case)]\n\n#[macro_use]\nextern crate bitflags;\nextern crate bytes;\n#[macro_use]\nextern crate enum_primitive;\n\npub mod blend;\npub mod dynamic;\npub mod immediate;\npub mod rendertarget;\npub mod shader;\npub mod r#static;\npub mod texture;\n\n#[cfg_attr(tarpaulin, skip)]\nmod internal;\n\nuse crate::internal::wrap_result;\npub use internal::BLZ_Rectangle as Rectangle;\npub use internal::BLZ_SpriteQuad as SpriteQuad;\npub use internal::BLZ_Vector2 as Vector2;\npub use internal::BLZ_Vector4 as Vector4;\npub use internal::BLZ_Vertex as Vertex;\n\nuse internal::*;\nuse std::ffi::*;\nuse std::os::raw::*;\nuse std::string::*;\n\n#[derive(Debug, Copy, Clone)]\npub struct Color {\n    pub r: f32,\n    pub g: f32,\n    pub b: f32,\n    pub a: f32,\n}\n\n#[cfg_attr(tarpaulin, skip)]\nimpl From<Vector4> for Color {\n    fn from(vector: Vector4) -> Self {\n        Color { r: vector.x, g: vector.y, b: vector.z, a: vector.w }\n    }\n}\n\n#[cfg_attr(tarpaulin, skip)]\nimpl From<Color> for Vector4 {\n    fn from(color: Color) -> Self {\n        Vector4 { x: color.r, y: color.g, z: color.b, w: color.a }\n    }\n}\n\nenum_from_primitive! {\n    #[cfg_attr(tarpaulin, skip)]\n    #[derive(Debug, Copy, Clone)]\n    pub enum SpriteFlip\n    {\n        None = BLZ_SpriteFlip_NONE as isize,\n        FlipH = BLZ_SpriteFlip_FLIP_H as isize,\n        FlipV = BLZ_SpriteFlip_FLIP_V as isize,\n        Both = BLZ_SpriteFlip_BOTH as isize\n    }\n}\n\npub type GLProcLoader = unsafe extern \"C\" fn(name: *const c_char) -> *mut c_void;\npub type CallResult = Result<(), String>;\n\npub fn get_last_error() -> Option<String> {\n    unsafe {\n        let ptr = BLZ_GetLastError().as_ref();\n        ptr.map(|val| CStr::from_ptr(val).to_str().unwrap().to_owned())\n    }\n}\n\npub fn load(loader: GLProcLoader) -> CallResult {\n    unsafe {\n        match BLZ_Load(Some(loader)) {\n            x if x > 0 => Ok(()),\n            _ => panic!(get_last_error().unwrap_or(\"Unknown error\".to_string())),\n        }\n    }\n}\n\npub fn set_viewport(width: u32, height: u32) -> CallResult {\n    unsafe { wrap_result(BLZ_SetViewport(width as i32, height as i32)) }\n}\n\npub fn set_clear_color(color: Color) {\n    unsafe {\n        BLZ_SetClearColor(color.into());\n    }\n}\n\npub fn clear() {\n    unsafe {\n        BLZ_Clear();\n    }\n}\n","traces":[{"line":58,"address":4219072,"length":1,"stats":{"Line":0}},{"line":71,"address":4217984,"length":1,"stats":{"Line":1}},{"line":73,"address":4218001,"length":1,"stats":{"Line":1}},{"line":74,"address":4218025,"length":1,"stats":{"Line":2}},{"line":78,"address":4218064,"length":1,"stats":{"Line":1}},{"line":80,"address":4218079,"length":1,"stats":{"Line":1}},{"line":81,"address":4218142,"length":1,"stats":{"Line":1}},{"line":82,"address":4218162,"length":1,"stats":{"Line":0}},{"line":87,"address":4218368,"length":1,"stats":{"Line":1}},{"line":88,"address":4218383,"length":1,"stats":{"Line":1}},{"line":91,"address":4218448,"length":1,"stats":{"Line":1}},{"line":93,"address":4218452,"length":1,"stats":{"Line":1}},{"line":97,"address":4218512,"length":1,"stats":{"Line":1}},{"line":99,"address":4218513,"length":1,"stats":{"Line":1}}],"covered":12,"coverable":14},{"path":["/","home","razer","vscode-projects","blaze-rs","src","rendertarget.rs"],"content":"use crate::internal::*;\nuse crate::texture::*;\nuse crate::*;\nuse std::marker::PhantomData;\n\npub struct RenderTarget<'a> {\n    pub raw: *mut BLZ_RenderTarget,\n    pub texture: Texture<'a>,\n    _marker: PhantomData<&'a ()>,\n    width: u32,\n    height: u32,\n}\n\nimpl<'a> Drop for RenderTarget<'a> {\n    fn drop(&mut self) {\n        unsafe {\n            BLZ_FreeRenderTarget(self.raw);\n        }\n    }\n}\n\nimpl<'a> RenderTarget<'a> {\n    pub fn create(width: u32, height: u32) -> Result<RenderTarget<'a>, String> {\n        unsafe {\n            let ptr = BLZ_CreateRenderTarget(width as i32, height as i32);\n            if ptr.is_null() {\n                Err(try_get_err())\n            } else {\n                let val = *ptr;\n                Ok(RenderTarget {\n                    raw: ptr,\n                    texture: Texture {\n                        id: val.texture.id,\n                        width,\n                        height,\n                        raw: (ptr as *mut u32).offset(1) as *mut BLZ_Texture,\n                        _marker: PhantomData,\n                        no_free: true,\n                    },\n                    _marker: PhantomData,\n                    width,\n                    height,\n                })\n            }\n        }\n    }\n\n    pub fn get_width(&self) -> u32 {\n        self.width\n    }\n\n    pub fn get_height(&self) -> u32 {\n        self.height\n    }\n\n    pub fn bind(target: Option<&RenderTarget<'a>>) -> CallResult {\n        unsafe {\n            if let Some(t) = target {\n                wrap_result(BLZ_BindRenderTarget(t.raw))\n            } else {\n                wrap_result(BLZ_BindRenderTarget(std::ptr::null_mut()))\n            }\n        }\n    }\n}\n","traces":[{"line":15,"address":4230832,"length":1,"stats":{"Line":1}},{"line":17,"address":4230841,"length":1,"stats":{"Line":1}},{"line":23,"address":4230864,"length":1,"stats":{"Line":1}},{"line":25,"address":4230882,"length":1,"stats":{"Line":1}},{"line":26,"address":4230913,"length":1,"stats":{"Line":1}},{"line":27,"address":4230937,"length":1,"stats":{"Line":1}},{"line":28,"address":null,"length":0,"stats":{"Line":0}},{"line":29,"address":4230949,"length":1,"stats":{"Line":1}},{"line":30,"address":4231146,"length":1,"stats":{"Line":1}},{"line":31,"address":4230971,"length":1,"stats":{"Line":1}},{"line":32,"address":4231087,"length":1,"stats":{"Line":1}},{"line":33,"address":4230976,"length":1,"stats":{"Line":1}},{"line":34,"address":4230980,"length":1,"stats":{"Line":1}},{"line":35,"address":4230984,"length":1,"stats":{"Line":1}},{"line":36,"address":4230988,"length":1,"stats":{"Line":1}},{"line":37,"address":null,"length":0,"stats":{"Line":0}},{"line":38,"address":null,"length":0,"stats":{"Line":0}},{"line":40,"address":null,"length":0,"stats":{"Line":0}},{"line":41,"address":4231132,"length":1,"stats":{"Line":1}},{"line":42,"address":4231136,"length":1,"stats":{"Line":1}},{"line":48,"address":4231280,"length":1,"stats":{"Line":1}},{"line":49,"address":4231285,"length":1,"stats":{"Line":1}},{"line":52,"address":4231296,"length":1,"stats":{"Line":1}},{"line":53,"address":4231301,"length":1,"stats":{"Line":1}},{"line":56,"address":4231312,"length":1,"stats":{"Line":1}},{"line":58,"address":4231328,"length":1,"stats":{"Line":1}},{"line":59,"address":4231381,"length":1,"stats":{"Line":1}},{"line":60,"address":null,"length":0,"stats":{"Line":0}},{"line":61,"address":4231359,"length":1,"stats":{"Line":1}}],"covered":24,"coverable":29},{"path":["/","home","razer","vscode-projects","blaze-rs","src","shader.rs"],"content":"use crate::internal::*;\nuse crate::*;\nuse std::marker::PhantomData;\n\npub type UniformLoc = i32;\n\npub struct Shader<'a> {\n    pub raw: *mut BLZ_Shader,\n    pub _marker: PhantomData<&'a ()>,\n    pub is_default: bool,\n}\n\nimpl<'a> Drop for Shader<'a> {\n    fn drop(&mut self) {\n        if self.is_default {\n            return;\n        }\n        unsafe {\n            BLZ_FreeShader(self.raw);\n        }\n    }\n}\n\nimpl<'a> Shader<'a> {\n    pub fn compile(vertex: &str, fragment: &str) -> Result<Shader<'a>, String> {\n        unsafe {\n            let vert = CString::new(vertex).map_err(|_| \"String contains null bytes\")?;\n            let frag = CString::new(fragment).map_err(|_| \"String contains null bytes\")?;\n            let ptr = BLZ_CompileShader(vert.as_ptr(), frag.as_ptr());\n            if ptr.is_null() {\n                Err(try_get_err())\n            } else {\n                Ok(Shader { raw: ptr, _marker: PhantomData, is_default: false })\n            }\n        }\n    }\n\n    pub fn get_default() -> Shader<'a> {\n        unsafe { Shader { raw: BLZ_GetDefaultShader(), _marker: PhantomData, is_default: true } }\n    }\n\n    pub fn make_current(&self) -> CallResult {\n        unsafe { wrap_result(BLZ_UseShader(self.raw)) }\n    }\n\n    pub fn get_uniform_location(&self, name: &str) -> Option<UniformLoc> {\n        unsafe {\n            let name_ptr = CString::new(name).ok()?;\n            match BLZ_GetUniformLocation(self.raw, name_ptr.as_ptr()) {\n                x if x >= 0 => Some(x),\n                _ => None,\n            }\n        }\n    }\n\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform1f(location: UniformLoc, v0: f32) {\n        unsafe {\n            BLZ_Uniform1f(location, v0);\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform2f(location: UniformLoc, v0: f32, v1: f32) {\n        unsafe {\n            BLZ_Uniform2f(location, v0, v1);\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform3f(location: UniformLoc, v0: f32, v1: f32, v2: f32) {\n        unsafe {\n            BLZ_Uniform3f(location, v0, v1, v2);\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform4f(location: UniformLoc, v0: f32, v1: f32, v2: f32, v3: f32) {\n        unsafe {\n            BLZ_Uniform4f(location, v0, v1, v2, v3);\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform1i(location: UniformLoc, v0: i32) {\n        unsafe {\n            BLZ_Uniform1i(location, v0);\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform2i(location: UniformLoc, v0: i32, v1: i32) {\n        unsafe {\n            BLZ_Uniform2i(location, v0, v1);\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform3i(location: UniformLoc, v0: i32, v1: i32, v2: i32) {\n        unsafe {\n            BLZ_Uniform3i(location, v0, v1, v2);\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform4i(location: UniformLoc, v0: i32, v1: i32, v2: i32, v3: i32) {\n        unsafe {\n            BLZ_Uniform4i(location, v0, v1, v2, v3);\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform1ui(location: UniformLoc, v0: u32) {\n        unsafe {\n            BLZ_Uniform1ui(location, v0);\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform2ui(location: UniformLoc, v0: u32, v1: u32) {\n        unsafe {\n            BLZ_Uniform2ui(location, v0, v1);\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform3ui(location: UniformLoc, v0: u32, v1: u32, v2: u32) {\n        unsafe {\n            BLZ_Uniform3ui(location, v0, v1, v2);\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform4ui(location: UniformLoc, v0: u32, v1: u32, v2: u32, v3: u32) {\n        unsafe {\n            BLZ_Uniform4ui(location, v0, v1, v2, v3);\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform_matrix_2fv(\n        location: UniformLoc,\n        count: i32,\n        transpose: bool,\n        value: &[f32],\n    ) {\n        unsafe {\n            BLZ_UniformMatrix2fv(location, count, transpose as u8, value.as_ptr());\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform_matrix_3fv(\n        location: UniformLoc,\n        count: i32,\n        transpose: bool,\n        value: &[f32],\n    ) {\n        unsafe {\n            BLZ_UniformMatrix3fv(location, count, transpose as u8, value.as_ptr());\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform_matrix_4fv(\n        location: UniformLoc,\n        count: i32,\n        transpose: bool,\n        value: &[f32],\n    ) {\n        unsafe {\n            BLZ_UniformMatrix4fv(location, count, transpose as u8, value.as_ptr());\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform_matrix_2x3fv(\n        location: UniformLoc,\n        count: i32,\n        transpose: bool,\n        value: &[f32],\n    ) {\n        unsafe {\n            BLZ_UniformMatrix2x3fv(location, count, transpose as u8, value.as_ptr());\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform_matrix_3x2fv(\n        location: UniformLoc,\n        count: i32,\n        transpose: bool,\n        value: &[f32],\n    ) {\n        unsafe {\n            BLZ_UniformMatrix3x2fv(location, count, transpose as u8, value.as_ptr());\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform_matrix_2x4fv(\n        location: UniformLoc,\n        count: i32,\n        transpose: bool,\n        value: &[f32],\n    ) {\n        unsafe {\n            BLZ_UniformMatrix2x4fv(location, count, transpose as u8, value.as_ptr());\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform_matrix_4x2fv(\n        location: UniformLoc,\n        count: i32,\n        transpose: bool,\n        value: &[f32],\n    ) {\n        unsafe {\n            BLZ_UniformMatrix4x2fv(location, count, transpose as u8, value.as_ptr());\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform_matrix_3x4fv(\n        location: UniformLoc,\n        count: i32,\n        transpose: bool,\n        value: &[f32],\n    ) {\n        unsafe {\n            BLZ_UniformMatrix3x4fv(location, count, transpose as u8, value.as_ptr());\n        }\n    }\n    #[cfg_attr(tarpaulin, skip)]\n    pub fn set_uniform_matrix_4x3fv(\n        location: UniformLoc,\n        count: i32,\n        transpose: bool,\n        value: &[f32],\n    ) {\n        unsafe {\n            BLZ_UniformMatrix4x3fv(location, count, transpose as u8, value.as_ptr());\n        }\n    }\n}\n","traces":[{"line":14,"address":4241216,"length":1,"stats":{"Line":1}},{"line":15,"address":4241225,"length":1,"stats":{"Line":1}},{"line":16,"address":4241236,"length":1,"stats":{"Line":1}},{"line":19,"address":4241238,"length":1,"stats":{"Line":1}},{"line":25,"address":4241280,"length":1,"stats":{"Line":1}},{"line":27,"address":4231536,"length":1,"stats":{"Line":1}},{"line":28,"address":4231568,"length":1,"stats":{"Line":1}},{"line":29,"address":4242006,"length":1,"stats":{"Line":1}},{"line":30,"address":4242141,"length":1,"stats":{"Line":1}},{"line":31,"address":4242178,"length":1,"stats":{"Line":0}},{"line":32,"address":null,"length":0,"stats":{"Line":0}},{"line":33,"address":4242185,"length":1,"stats":{"Line":1}},{"line":38,"address":4242512,"length":1,"stats":{"Line":1}},{"line":39,"address":4242516,"length":1,"stats":{"Line":1}},{"line":42,"address":4242560,"length":1,"stats":{"Line":1}},{"line":43,"address":4242572,"length":1,"stats":{"Line":1}},{"line":46,"address":4242640,"length":1,"stats":{"Line":1}},{"line":48,"address":4242662,"length":1,"stats":{"Line":1}},{"line":49,"address":4242993,"length":1,"stats":{"Line":1}},{"line":50,"address":4243081,"length":1,"stats":{"Line":1}},{"line":51,"address":4243110,"length":1,"stats":{"Line":0}}],"covered":18,"coverable":21},{"path":["/","home","razer","vscode-projects","blaze-rs","src","static.rs"],"content":"use crate::internal::*;\nuse crate::texture::*;\nuse crate::*;\nuse std::marker::PhantomData;\n\npub struct StaticBatch<'b, 't: 'b> {\n    raw: *mut BLZ_StaticBatch,\n    _marker: PhantomData<&'b ()>,\n    options: StaticBatchOpts<'t>,\n}\n\n#[derive(Debug, Clone, PartialEq, Eq)]\npub struct StaticBatchOpts<'a> {\n    pub texture: &'a Texture<'a>,\n    pub max_sprites: u32,\n}\n\nimpl<'b, 't: 'b> Drop for StaticBatch<'b, 't> {\n    fn drop(&mut self) {\n        unsafe {\n            BLZ_FreeBatchStatic(self.raw);\n        }\n    }\n}\n\nimpl<'b, 't: 'b> StaticBatch<'b, 't> {\n    pub fn new(options: StaticBatchOpts<'t>) -> Result<StaticBatch<'b, 't>, String> {\n        unsafe {\n            let ptr = BLZ_CreateStatic(options.texture.raw, options.max_sprites as i32);\n            if ptr.is_null() {\n                return Err(try_get_err());\n            } else {\n                return Ok(StaticBatch { raw: ptr, _marker: PhantomData, options: options });\n            }\n        }\n    }\n\n    pub fn draw(\n        &self,\n        position: Vector2,\n        srcRectangle: Option<Rectangle>,\n        rotationInRadians: f32,\n        origin: Option<Vector2>,\n        scale: Option<Vector2>,\n        color: Color,\n        flip: SpriteFlip,\n    ) -> CallResult {\n        unsafe {\n            wrap_result(BLZ_DrawStatic(\n                self.raw,\n                position,\n                srcRectangle.as_raw(),\n                rotationInRadians,\n                origin.as_raw(),\n                scale.as_raw(),\n                color.into(),\n                flip as u32,\n            ))\n        }\n    }\n\n    pub fn lower_draw(&self, quad: &SpriteQuad) -> CallResult {\n        unsafe { wrap_result(BLZ_LowerDrawStatic(self.raw, quad)) }\n    }\n\n    pub fn present(&self, transformMatrix: &[f32; 16]) -> CallResult {\n        unsafe {\n            let matrix_ptr: *const f32 = transformMatrix as *const f32;\n            wrap_result(BLZ_PresentStatic(self.raw, matrix_ptr))\n        }\n    }\n\n    pub fn get_options(&self) -> &StaticBatchOpts {\n        &self.options\n    }\n}\n","traces":[{"line":19,"address":4259408,"length":1,"stats":{"Line":1}},{"line":21,"address":4259417,"length":1,"stats":{"Line":1}},{"line":27,"address":4259440,"length":1,"stats":{"Line":1}},{"line":29,"address":4259456,"length":1,"stats":{"Line":1}},{"line":30,"address":4259494,"length":1,"stats":{"Line":1}},{"line":31,"address":4259518,"length":1,"stats":{"Line":0}},{"line":32,"address":null,"length":0,"stats":{"Line":0}},{"line":33,"address":4259530,"length":1,"stats":{"Line":1}},{"line":38,"address":4259648,"length":1,"stats":{"Line":1}},{"line":49,"address":4259875,"length":1,"stats":{"Line":1}},{"line":50,"address":4259689,"length":1,"stats":{"Line":1}},{"line":51,"address":4259697,"length":1,"stats":{"Line":1}},{"line":52,"address":4259714,"length":1,"stats":{"Line":1}},{"line":53,"address":4259769,"length":1,"stats":{"Line":1}},{"line":54,"address":4259786,"length":1,"stats":{"Line":1}},{"line":55,"address":4259801,"length":1,"stats":{"Line":1}},{"line":56,"address":4259816,"length":1,"stats":{"Line":1}},{"line":57,"address":4259860,"length":1,"stats":{"Line":1}},{"line":62,"address":4260000,"length":1,"stats":{"Line":0}},{"line":63,"address":4260017,"length":1,"stats":{"Line":0}},{"line":66,"address":4260080,"length":1,"stats":{"Line":1}},{"line":68,"address":4260097,"length":1,"stats":{"Line":1}},{"line":69,"address":4260107,"length":1,"stats":{"Line":1}},{"line":73,"address":4260176,"length":1,"stats":{"Line":1}},{"line":74,"address":4260181,"length":1,"stats":{"Line":1}}],"covered":21,"coverable":25},{"path":["/","home","razer","vscode-projects","blaze-rs","src","texture.rs"],"content":"use crate::internal::*;\nuse crate::*;\nuse bytes::*;\nuse std::ffi::*;\nuse std::marker::PhantomData;\n\n#[derive(Debug, PartialEq, Eq)]\npub struct Texture<'a> {\n    pub id: u32,\n    pub width: u32,\n    pub height: u32,\n    pub raw: *mut BLZ_Texture,\n    pub _marker: PhantomData<&'a ()>,\n    pub no_free: bool,\n}\n\nenum_from_primitive! {\n    #[cfg_attr(tarpaulin, skip)]\n    #[derive(Debug, PartialEq)]\n    pub enum ImageChannels\n    {\n        Auto = BLZ_ImageChannels_AUTO as isize,\n        Grayscale = BLZ_ImageChannels_GRAYSCALE as isize,\n        GrayscaleAlpha = BLZ_ImageChannels_GRAYSCALE_ALPHA as isize,\n        RGB = BLZ_ImageChannels_RGB as isize,\n        RGBA = BLZ_ImageChannels_RGBA as isize\n    }\n}\n\nbitflags! {\n    #[cfg_attr(tarpaulin, skip)]\n    pub struct ImageFlags: u32 {\n        const None = 0;\n        const PowerOfTwo  = BLZ_ImageFlags_POWER_OF_TWO;\n        const Mipmaps = BLZ_ImageFlags_MIPMAPS;\n        const Repeats = BLZ_ImageFlags_TEXTURE_REPEATS;\n        const MultiplyAlpha = BLZ_ImageFlags_MULTIPLY_ALPHA;\n        const InvertY = BLZ_ImageFlags_INVERT_Y;\n        const CompressToDXT = BLZ_ImageFlags_COMPRESS_TO_DXT;\n        const DDSLoadDirect = BLZ_ImageFlags_DDS_LOAD_DIRECT;\n        const NTSCSafeRGB = BLZ_ImageFlags_NTSC_SAFE_RGB;\n        const CoCgY = BLZ_ImageFlags_CoCg_Y;\n        const TextureRectangle = BLZ_ImageFlags_TEXTURE_RECTANGLE;\n    }\n}\n\nenum_from_primitive! {\n    #[cfg_attr(tarpaulin, skip)]\n    #[derive(Debug, PartialEq)]\n    pub enum SaveImageFormat\n    {\n        TGA = BLZ_SaveImageFormat_TGA as isize,\n        BMP = BLZ_SaveImageFormat_BMP as isize,\n        DDS = BLZ_SaveImageFormat_DDS as isize\n    }\n}\n\nenum_from_primitive! {\n    #[cfg_attr(tarpaulin, skip)]\n    #[derive(Debug, PartialEq)]\n    pub enum TextureFilter {\n        Nearest = BLZ_TextureFilter_NEAREST as isize,\n        Linear = BLZ_TextureFilter_LINEAR as isize,\n    }\n}\n\nenum_from_primitive! {\n    #[cfg_attr(tarpaulin, skip)]\n    #[derive(Debug, PartialEq)]\n    pub enum TextureWrap {\n        ClampToEdge = BLZ_TextureWrap_CLAMP_TO_EDGE as isize,\n        Repeat = BLZ_TextureWrap_REPEAT as isize,\n        MirroredRepeat = BLZ_TextureWrap_MIRRORED_REPEAT as isize,\n    }\n}\n\nimpl<'a> Drop for Texture<'a> {\n    fn drop(&mut self) {\n        unsafe {\n            if !self.no_free {\n                BLZ_FreeTexture(self.raw);\n            }\n        }\n    }\n}\n\nunsafe fn from_ptr<'a>(ptr: *mut BLZ_Texture) -> Result<Texture<'a>, String> {\n    if ptr.is_null() {\n        Err(try_get_err())\n    } else {\n        let tex = *ptr;\n        Ok(Texture {\n            raw: ptr,\n            _marker: PhantomData,\n            id: tex.id,\n            width: tex.width as u32,\n            height: tex.height as u32,\n            no_free: false,\n        })\n    }\n}\n\nfn path_to_ptr(path: &str) -> Result<CString, String> {\n    CString::new(path.to_owned()).map_err(|_| \"Path cannot be null\".to_owned())\n}\n\nimpl<'a> Texture<'a> {\n    pub fn set_filtering(\n        &self,\n        minification: TextureFilter,\n        magnification: TextureFilter,\n    ) -> CallResult {\n        unsafe {\n            wrap_result(BLZ_SetTextureFiltering(\n                self.raw,\n                minification as u32,\n                magnification as u32,\n            ))\n        }\n    }\n\n    pub fn set_wrap(&self, x: TextureWrap, y: TextureWrap) -> CallResult {\n        unsafe { wrap_result(BLZ_SetTextureWrap(self.raw, x as u32, y as u32)) }\n    }\n\n    pub fn from_memory(\n        bytes: &Bytes,\n        channels: ImageChannels,\n        texture_id: Option<u32>,\n        flags: ImageFlags,\n    ) -> Result<Texture<'a>, String> {\n        unsafe {\n            if let Some(i) = texture_id {\n                if i <= 0 {\n                    return Err(\"Invalid texture ID, must be greater than zero\".to_owned());\n                }\n            }\n            let buf_ptr = bytes.as_ptr();\n            let ptr = BLZ_LoadTextureFromMemory(\n                buf_ptr,\n                bytes.len() as i32,\n                channels as u32,\n                match texture_id {\n                    Some(i) => i,\n                    None => 0,\n                },\n                flags.bits,\n            );\n            from_ptr(ptr)\n        }\n    }\n\n    pub fn from_file(\n        path: &str,\n        channels: ImageChannels,\n        texture_id: Option<u32>,\n        flags: ImageFlags,\n    ) -> Result<Texture<'a>, String> {\n        unsafe {\n            if let Some(i) = texture_id {\n                if i <= 0 {\n                    return Err(\"Invalid texture ID, must be greater than zero\".to_owned());\n                }\n            }\n            let path_ptr = path_to_ptr(path);\n            if let Ok(p) = path_ptr {\n                return from_ptr(BLZ_LoadTextureFromFile(\n                    p.as_ptr(),\n                    channels as u32,\n                    match texture_id {\n                        Some(i) => i,\n                        None => 0,\n                    },\n                    flags.bits,\n                ));\n            } else {\n                return Err(\"Invalid path\".to_owned());\n            }\n        }\n    }\n\n    pub fn get_max_slots() -> u32 {\n        unsafe { BLZ_GetMaxTextureSlots() as u32 }\n    }\n\n    pub fn bind(texture: Option<&Texture>, slot: u32) -> CallResult {\n        unsafe {\n            if let Some(tex) = texture {\n                wrap_result(BLZ_BindTexture(tex.raw, slot as i32))\n            } else {\n                wrap_result(BLZ_BindTexture(std::ptr::null_mut(), slot as i32))\n            }\n        }\n    }\n}\n\npub fn save_screenshot(\n    path: &str,\n    format: SaveImageFormat,\n    x_start: u32,\n    y_start: u32,\n    width: u32,\n    height: u32,\n) -> CallResult {\n    let path_ptr = path_to_ptr(path);\n    unsafe {\n        match path_ptr {\n            Ok(p) => wrap_result(BLZ_SaveScreenshot(\n                p.as_ptr(),\n                format as u32,\n                x_start as i32,\n                y_start as i32,\n                width as i32,\n                height as i32,\n            )),\n            Err(s) => Err(s),\n        }\n    }\n}\n","traces":[{"line":19,"address":4284688,"length":1,"stats":{"Line":0}},{"line":30,"address":4292696,"length":1,"stats":{"Line":0}},{"line":49,"address":4293968,"length":1,"stats":{"Line":0}},{"line":60,"address":4294960,"length":1,"stats":{"Line":0}},{"line":69,"address":4295728,"length":1,"stats":{"Line":0}},{"line":78,"address":4280048,"length":1,"stats":{"Line":1}},{"line":80,"address":4280057,"length":1,"stats":{"Line":1}},{"line":81,"address":4280073,"length":1,"stats":{"Line":1}},{"line":87,"address":4280112,"length":1,"stats":{"Line":1}},{"line":88,"address":4280124,"length":1,"stats":{"Line":1}},{"line":89,"address":4280161,"length":1,"stats":{"Line":1}},{"line":91,"address":4280173,"length":1,"stats":{"Line":1}},{"line":92,"address":4280210,"length":1,"stats":{"Line":1}},{"line":93,"address":4280193,"length":1,"stats":{"Line":1}},{"line":95,"address":4280198,"length":1,"stats":{"Line":1}},{"line":96,"address":4280202,"length":1,"stats":{"Line":1}},{"line":97,"address":4280206,"length":1,"stats":{"Line":1}},{"line":103,"address":4280336,"length":1,"stats":{"Line":1}},{"line":104,"address":4229184,"length":1,"stats":{"Line":1}},{"line":108,"address":4280432,"length":1,"stats":{"Line":1}},{"line":114,"address":4280491,"length":1,"stats":{"Line":1}},{"line":115,"address":4280462,"length":1,"stats":{"Line":1}},{"line":116,"address":4280470,"length":1,"stats":{"Line":1}},{"line":117,"address":4280478,"length":1,"stats":{"Line":1}},{"line":122,"address":4280544,"length":1,"stats":{"Line":1}},{"line":123,"address":4280574,"length":1,"stats":{"Line":1}},{"line":126,"address":4280656,"length":1,"stats":{"Line":1}},{"line":133,"address":4280691,"length":1,"stats":{"Line":1}},{"line":134,"address":4280721,"length":1,"stats":{"Line":0}},{"line":135,"address":4280759,"length":1,"stats":{"Line":0}},{"line":138,"address":4280730,"length":1,"stats":{"Line":1}},{"line":139,"address":4280988,"length":1,"stats":{"Line":1}},{"line":140,"address":4280857,"length":1,"stats":{"Line":1}},{"line":141,"address":4280865,"length":1,"stats":{"Line":1}},{"line":142,"address":4280895,"length":1,"stats":{"Line":1}},{"line":143,"address":4280954,"length":1,"stats":{"Line":1}},{"line":144,"address":4280900,"length":1,"stats":{"Line":1}},{"line":145,"address":4280943,"length":1,"stats":{"Line":1}},{"line":147,"address":4280983,"length":1,"stats":{"Line":1}},{"line":149,"address":4281022,"length":1,"stats":{"Line":1}},{"line":153,"address":4281056,"length":1,"stats":{"Line":1}},{"line":160,"address":4281099,"length":1,"stats":{"Line":1}},{"line":161,"address":4281168,"length":1,"stats":{"Line":0}},{"line":162,"address":4281217,"length":1,"stats":{"Line":0}},{"line":165,"address":4281177,"length":1,"stats":{"Line":1}},{"line":166,"address":4281297,"length":1,"stats":{"Line":1}},{"line":167,"address":4281545,"length":1,"stats":{"Line":1}},{"line":168,"address":4281394,"length":1,"stats":{"Line":1}},{"line":169,"address":4281453,"length":1,"stats":{"Line":1}},{"line":170,"address":4281509,"length":1,"stats":{"Line":1}},{"line":171,"address":4281458,"length":1,"stats":{"Line":1}},{"line":172,"address":4281498,"length":1,"stats":{"Line":1}},{"line":174,"address":4281538,"length":1,"stats":{"Line":1}},{"line":176,"address":null,"length":0,"stats":{"Line":0}},{"line":177,"address":4281308,"length":1,"stats":{"Line":0}},{"line":182,"address":4281952,"length":1,"stats":{"Line":1}},{"line":183,"address":4281953,"length":1,"stats":{"Line":1}},{"line":186,"address":4281984,"length":1,"stats":{"Line":1}},{"line":188,"address":4282005,"length":1,"stats":{"Line":1}},{"line":189,"address":4282058,"length":1,"stats":{"Line":1}},{"line":190,"address":null,"length":0,"stats":{"Line":0}},{"line":191,"address":4282036,"length":1,"stats":{"Line":1}},{"line":197,"address":4282144,"length":1,"stats":{"Line":1}},{"line":205,"address":4282196,"length":1,"stats":{"Line":1}},{"line":207,"address":4282682,"length":1,"stats":{"Line":1}},{"line":208,"address":4282295,"length":1,"stats":{"Line":1}},{"line":209,"address":4282382,"length":1,"stats":{"Line":1}},{"line":210,"address":4282617,"length":1,"stats":{"Line":1}},{"line":211,"address":4282622,"length":1,"stats":{"Line":1}},{"line":212,"address":4282626,"length":1,"stats":{"Line":1}},{"line":213,"address":4282630,"length":1,"stats":{"Line":1}},{"line":214,"address":4282638,"length":1,"stats":{"Line":1}},{"line":216,"address":4282402,"length":1,"stats":{"Line":0}}],"covered":60,"coverable":73}]};</script>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script>const e = React.createElement;
+
+function pathToString(path) {
+  if (path[0] === '/') {
+    return '/' + path.slice(1).join('/');
+  } else {
+    return path.join('/');
+  }
+}
+
+function findCommonPath(files) {
+  if (!files || !files.length) {
+    return [];
+  }
+
+  function isPrefix(arr, prefix) {
+    if (arr.length < prefix.length) {
+      return false;
+    }
+    for (let i = prefix.length - 1; i >= 0; --i) {
+      if (arr[i] !== prefix[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  let commonPath = [...files[0].path];
+  while (commonPath.length) {
+    if (files.every(file => isPrefix(file.path, commonPath))) {
+      break;
+    }
+    commonPath.pop();
+  }
+  return commonPath;
+}
+
+function findFolders(files) {
+  if (!files || !files.length) {
+    return [];
+  }
+
+  let folders = files.filter(file => file.path.length > 1).map(file => file.path[0]);
+  folders = [...new Set(folders)]; // unique
+  folders.sort();
+
+  folders = folders.map(folder => {
+    let filesInFolder = files
+      .filter(file => file.path[0] === folder)
+      .map(file => ({
+        ...file,
+        path: file.path.slice(1),
+        parent: [...file.parent, file.path[0]],
+    }));
+
+    const children = findFolders(filesInFolder); // recursion
+
+    return {
+      is_folder: true,
+      path: [folder],
+      parent: files[0].parent,
+      children,
+      covered: children.reduce((sum, file) => sum + file.covered, 0),
+      coverable: children.reduce((sum, file) => sum + file.coverable, 0),
+    };
+  });
+
+  return [
+    ...folders,
+    ...files.filter(file => file.path.length === 1),
+  ];
+}
+
+class App extends React.Component {
+  constructor(...args) {
+    super(...args);
+
+    const commonPath = findCommonPath(data.files);
+    const files = data.files.map(file => ({...file, path: file.path.slice(commonPath.length), parent: commonPath}));
+    const children = findFolders(files);
+
+    data = {
+      is_folder: true,
+      children,
+      path: commonPath,
+      parent: [],
+      covered: children.reduce((sum, file) => sum + file.covered, 0),
+      coverable: children.reduce((sum, file) => sum + file.coverable, 0),
+    };
+
+    this.state = {
+      commonPath,
+      current: [data],
+    };
+  }
+
+  render() {
+    const {current} = this.state;
+    if (!current || !current.length) {
+      return null;
+    }
+    const file = current[current.length - 1];
+
+    let w = null;
+    if (file.is_folder) {
+      w = e(FilesList, {
+        folder: file,
+        onSelectFile: this.selectFile.bind(this),
+        onBack: current.length > 1 ? this.back.bind(this) : null,
+      });
+    } else {
+      w = e(DisplayFile, {
+        file,
+        onBack: this.back.bind(this),
+      });
+    }
+
+    return e('div', {className: 'app'}, w);
+  }
+
+  selectFile(file) {
+    this.setState(({current}) => {
+      return {current: [...current, file]};
+    });
+  }
+
+  back(file) {
+    this.setState(({current}) => {
+      return {current: current.slice(0, current.length - 1)};
+    });
+  }
+}
+
+function FilesList({folder, onSelectFile, onBack}) {
+  let files = folder.children;
+  return e('div', {className: 'display-folder'},
+    e(FileHeader, {file: folder, onBack}),
+    e('table', {className: 'files-list'},
+      e('thead', {className: 'files-list__head'},
+        e('tr', null,
+          e('th', null, "Path"),
+          e('th', null, "Coverage")
+        )
+      ),
+      e('tbody', {className: 'files-list__body'},
+        files.map(file => e(File, {file, onClick: onSelectFile}))
+      )
+    )
+  );
+}
+
+function File({file, onClick}) {
+  const coverage = file.coverable ? file.covered / file.coverable * 100 : -1;
+
+  return e('tr', {
+      className: 'files-list__file'
+        + (coverage >= 0 && coverage < 50 ? ' files-list__file_low': '')
+        + (coverage >= 50 && coverage < 80 ? ' files-list__file_medium': '')
+        + (coverage >= 80 ? ' files-list__file_high': '')
+        + (file.is_folder ? ' files-list__file_folder': ''),
+      onClick: () => onClick(file),
+    },
+    e('td', null, pathToString(file.path)),
+    e('td', null,
+      file.covered + ' / ' + file.coverable +
+      (coverage >= 0 ? ' (' + coverage.toFixed(2) + '%)' : '')
+    )
+  );
+}
+
+function DisplayFile({file, onBack}) {
+  return e('div', {className: 'display-file'},
+    e(FileHeader, {file, onBack}),
+    e(FileContent, {file})
+  );
+}
+
+function FileHeader({file, onBack}) {
+  return e('div', {className: 'file-header'},
+    onBack ? e('a', {className: 'file-header__back', onClick: onBack}, 'Back') : null,
+    e('div', {className: 'file-header__name'}, pathToString([...file.parent, ...file.path])),
+    e('div', {className: 'file-header__stat'},
+      'Covered: ' + file.covered + ' of ' + file.coverable +
+      (file.coverable ? ' (' + (file.covered / file.coverable * 100).toFixed(2) + '%)' : '')
+    )
+  );
+}
+
+function FileContent({file}) {
+  return e('div', {className: 'file-content'},
+    file.content.split(/\r?\n/).map((line, index) => {
+      const trace = file.traces.find(trace => trace.line === index + 1);
+      const covered = trace && trace.stats.Line;
+      const uncovered = trace && !trace.stats.Line;
+      return e('pre', {
+          className: 'code-line'
+            + (covered ? ' code-line_covered' : '')
+            + (uncovered ? ' code-line_uncovered' : ''),
+          title: trace ? JSON.stringify(trace.stats, null, 2) : null,
+        }, line);
+    })
+  );
+}
+
+ReactDOM.render(e(App), document.getElementById('root'));
+</script>
+</body>
+</html>

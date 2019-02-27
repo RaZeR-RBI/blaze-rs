@@ -9,7 +9,7 @@ pub struct StaticBatch<'b, 't: 'b> {
     options: StaticBatchOpts<'t>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct StaticBatchOpts<'a> {
     pub texture: &'a Texture<'a>,
     pub max_sprites: u32,

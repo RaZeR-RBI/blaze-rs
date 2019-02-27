@@ -1,6 +1,7 @@
 use crate::internal::*;
 
 enum_from_primitive! {
+    #[cfg_attr(tarpaulin, skip)]
     #[derive(Debug, PartialEq, Copy, Clone)]
     pub enum BlendFactor
     {

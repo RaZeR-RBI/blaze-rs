@@ -17,10 +17,10 @@ pub fn test_draw_static(window: &Window) {
 
     let mut batches: Vec<StaticBatch> = Vec::with_capacity(textures.len());
     for i in 0..textures.len() {
-        batches.push(
-            StaticBatch::new(StaticBatchOpts { texture: &textures[i], max_sprites: 100 })
-                .expect("Could not create static batch"),
-        );
+        let options = StaticBatchOpts { texture: &textures[i], max_sprites: 100 };
+        let batch = StaticBatch::new(options.clone()).expect("Could not create static batch");
+        assert_eq!(&options, batch.get_options());
+        batches.push(batch);
     }
 
     set_blend_mode(NORMAL);

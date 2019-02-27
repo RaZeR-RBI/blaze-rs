@@ -16,6 +16,7 @@ pub mod shader;
 pub mod r#static;
 pub mod texture;
 
+#[cfg_attr(tarpaulin, skip)]
 mod internal;
 
 use crate::internal::wrap_result;
@@ -38,12 +39,14 @@ pub struct Color {
     pub a: f32,
 }
 
+#[cfg_attr(tarpaulin, skip)]
 impl From<Vector4> for Color {
     fn from(vector: Vector4) -> Self {
         Color { r: vector.x, g: vector.y, b: vector.z, a: vector.w }
     }
 }
 
+#[cfg_attr(tarpaulin, skip)]
 impl From<Color> for Vector4 {
     fn from(color: Color) -> Self {
         Vector4 { x: color.r, y: color.g, z: color.b, w: color.a }
@@ -51,6 +54,7 @@ impl From<Color> for Vector4 {
 }
 
 enum_from_primitive! {
+    #[cfg_attr(tarpaulin, skip)]
     #[derive(Debug, Copy, Clone)]
     pub enum SpriteFlip
     {

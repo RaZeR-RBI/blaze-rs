@@ -48,6 +48,7 @@ const TEST_QUAD: SpriteQuad = SpriteQuad {
 };
 
 pub fn test_multitexturing(window: &Window) {
+    assert!(Texture::get_max_slots() > 0);
     let shader = Shader::compile(VERTEX_SHADER, FRAGMENT_SHADER).expect("Cannot compile shader");
     let textures: Vec<_> = ["tests/jellybeans.png", "tests/pnggrad8rgb.png"]
         .into_iter()
