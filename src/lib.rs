@@ -1,3 +1,4 @@
+#![deny(missing_docs)]
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
@@ -8,12 +9,19 @@ extern crate bytes;
 #[macro_use]
 extern crate enum_primitive;
 
+/// Defines blending-related functionality.
 pub mod blend;
+/// Dynamic batched drawing. Designed for moving sprites.
 pub mod dynamic;
+/// Immediate-mode drawing.
 pub mod immediate;
+/// Render target support.
 pub mod rendertarget;
+/// Custom shader support.
 pub mod shader;
+/// Static batched drawing. Designed for static geometry.
 pub mod r#static;
+/// Texture loading and saving.
 pub mod texture;
 
 #[cfg_attr(tarpaulin, skip)]
@@ -39,6 +47,9 @@ pub struct Rectangle {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct SpriteQuad {
+    /// Four vertices defining the quad, defined in the following order:
+    /// 0 - top-left, 1 - bottom-left, 2 - top-right, 3 - bottom-right
+    /// (think of N flipped horizontally, like И)
     pub vertices: [Vertex; 4usize],
 }
 
@@ -46,16 +57,22 @@ pub struct SpriteQuad {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Vector2 {
+    /// X coordinate
     pub x: f32,
+    /// Y coordinate
     pub y: f32,
 }
 /// Four-dimensional float vector.
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct Vector4 {
+    /// X coordinate
     pub x: f32,
+    /// Y coordinate
     pub y: f32,
+    /// Z coordinate
     pub z: f32,
+    /// W coordinate
     pub w: f32,
 }
 
@@ -89,9 +106,13 @@ use std::string::*;
 /// Represents a RGBA color.
 #[derive(Debug, Copy, Clone)]
 pub struct Color {
+    /// Red component, defined in range from 0.0 to 1.0
     pub r: f32,
+    /// Green component, defined in range from 0.0 to 1.0
     pub g: f32,
+    /// Blue component, defined in range from 0.0 to 1.0
     pub b: f32,
+    /// Alpha component, defined in range from 0.0 to 1.0
     pub a: f32,
 }
 
@@ -115,9 +136,13 @@ enum_from_primitive! {
     #[derive(Debug, Copy, Clone)]
     pub enum SpriteFlip
     {
+        /// Draws the sprite texture as it is
         None = BLZ_SpriteFlip_NONE as isize,
+        /// Flips the texture horizontally
         FlipH = BLZ_SpriteFlip_FLIP_H as isize,
+        /// Flips the texture vertically
         FlipV = BLZ_SpriteFlip_FLIP_V as isize,
+        /// Flips the texture both horizontally and vertically
         Both = BLZ_SpriteFlip_BOTH as isize
     }
 }

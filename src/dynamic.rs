@@ -17,13 +17,13 @@ pub struct SpriteBatch<'a> {
 }
 
 /// Defines creation options for dynamic sprite batching object (SpriteBatch):
-/// * `max_buckets` - maximum count of buckets (one bucket shares same texture)
-/// * `max_sprites_per_bucket` - maximum count of sprites per bucket
-/// * `flags` - additional flags
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SpriteBatchOpts {
+    /// Maximum count of buckets (one bucket shares same texture)
     pub max_buckets: u32,
+    /// Maximum count of sprites per bucket
     pub max_sprites_per_bucket: u32,
+    /// Additional flags
     pub flags: InitFlags,
 }
 
@@ -32,7 +32,9 @@ bitflags! {
     /// Defines flags that can be used for SpriteBatch creation.
     pub struct InitFlags: u32
     {
+        /// Default flags
         const Default = BLZ_InitFlags_DEFAULT;
+        /// Disables VAO buffering
         const NoBuffering = BLZ_InitFlags_NO_BUFFERING;
     }
 }

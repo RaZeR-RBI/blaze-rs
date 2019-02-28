@@ -37,6 +37,8 @@ impl Immediate {
         }
     }
 
+    /// Lower-level drawing function, which allows specifying a custom quad to
+    /// be drawn. Used internally by the library.
     pub fn lower_draw<'t>(texture: &'t Texture, quad: &SpriteQuad) -> CallResult {
         let q: BLZ_SpriteQuad = quad.into();
         unsafe { wrap_result(BLZ_LowerDrawImmediate(texture.id, &q)) }

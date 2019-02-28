@@ -15,15 +15,25 @@ enum_from_primitive! {
     /// * `F_dst` - destination blend factor
     pub enum BlendFactor
     {
+        /// Color is discarded (multiplied by 0)
         Zero = GL_ZERO as isize,
+        /// Color is used as is (multiplied by 1)
         One = GL_ONE as isize,
+        /// Color is multiplied by source color
         SrcColor = GL_SRC_COLOR as isize,
+        /// Color is multiplied by (vec(1) - source color)
         OneMinusSrcColor = GL_ONE_MINUS_SRC_COLOR as isize,
+        /// Color is multiplied by destination color
         DstColor = GL_DST_COLOR as isize,
+        /// Color is multiplied by (vec(1) - destination color)
         OneMinusDstColor = GL_ONE_MINUS_DST_COLOR as isize,
+        /// Color is multiplied by source alpha value
         SrcAlpha = GL_SRC_ALPHA as isize,
+        /// Color is multiplied by (1 - source alpha)
         OneMinusSrcAlpha = GL_ONE_MINUS_SRC_ALPHA as isize,
+        /// Color is multiplied by destination alpha value
         DstAlpha = GL_DST_ALPHA as isize,
+        /// Color is multiplied by (1 - destination alpha)
         OneMinusDstAlpha = GL_ONE_MINUS_DST_ALPHA as isize
     }
 }
@@ -41,7 +51,9 @@ enum_from_primitive! {
 /// * `F_dst` - destination blend factor
 pub struct BlendMode
 {
+    /// Source blend factor
     pub src: BlendFactor,
+    /// Destination blend factor
     pub dst: BlendFactor
 }
 

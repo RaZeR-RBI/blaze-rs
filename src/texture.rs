@@ -4,14 +4,18 @@ use bytes::*;
 use std::ffi::*;
 use std::marker::PhantomData;
 
+/// Defines a texture.
 #[derive(Debug, PartialEq, Eq)]
 pub struct Texture<'a> {
+    /// OpenGL texture ID
     pub id: u32,
+    /// Width in pixels
     pub width: u32,
+    /// Height in pixels
     pub height: u32,
-    pub raw: *mut BLZ_Texture,
-    pub _marker: PhantomData<&'a ()>,
-    pub no_free: bool,
+    pub(crate) raw: *mut BLZ_Texture,
+    pub(crate) _marker: PhantomData<&'a ()>,
+    pub(crate) no_free: bool,
 }
 
 enum_from_primitive! {
