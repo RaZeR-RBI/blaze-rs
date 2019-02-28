@@ -14,6 +14,7 @@ fn main() {
         .header("wrapper.h")
         .trust_clang_mangling(false)
         .rustfmt_bindings(true)
+        .generate_comments(false)
         .generate()
         .expect("Unable to generate bindings");
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());

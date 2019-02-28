@@ -20,17 +20,73 @@ pub mod texture;
 mod internal;
 
 use crate::internal::wrap_result;
-pub use internal::BLZ_Rectangle as Rectangle;
-pub use internal::BLZ_SpriteQuad as SpriteQuad;
-pub use internal::BLZ_Vector2 as Vector2;
-pub use internal::BLZ_Vector4 as Vector4;
-pub use internal::BLZ_Vertex as Vertex;
+
+/// A rectangle which has it's top-left corner position, width and height expressed in floats.
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct Rectangle {
+    /// X position of top left corner
+    pub x: f32,
+    /// Y position of top left corner
+    pub y: f32,
+    /// Width
+    pub w: f32,
+    /// Height
+    pub h: f32,
+}
+
+/// Underlying sprite quad data structure used by VAOs (vertex array objects).
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct SpriteQuad {
+    pub vertices: [Vertex; 4usize],
+}
+
+/// Two-dimensional float vector.
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct Vector2 {
+    pub x: f32,
+    pub y: f32,
+}
+/// Four-dimensional float vector.
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct Vector4 {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub w: f32,
+}
+
+/// Underlying vertex data structure used by VAOs (vertex array objects).
+#[repr(C, packed)]
+#[derive(Debug, Copy, Clone)]
+pub struct Vertex {
+    /// X position on the screen
+    pub x: f32,
+    /// Y position on the screen
+    pub y: f32,
+    /// Texture coordinate (U)
+    pub u: f32,
+    /// Texture coordinate (V)
+    pub v: f32,
+    /// Color (R)
+    pub r: f32,
+    /// Color (G)
+    pub g: f32,
+    /// Color (B)
+    pub b: f32,
+    /// Color (alpha)
+    pub a: f32,
+}
 
 use internal::*;
 use std::ffi::*;
 use std::os::raw::*;
 use std::string::*;
 
+/// Represents a RGBA color.
 #[derive(Debug, Copy, Clone)]
 pub struct Color {
     pub r: f32,
@@ -54,6 +110,7 @@ impl From<Color> for Vector4 {
 }
 
 enum_from_primitive! {
+    /// Defines supported flip modes that can be used when the sprite is drawn.
     #[cfg_attr(tarpaulin, skip)]
     #[derive(Debug, Copy, Clone)]
     pub enum SpriteFlip
@@ -65,9 +122,15 @@ enum_from_primitive! {
     }
 }
 
+/// Defines a type for OpenGL procedure loader.
 pub type GLProcLoader = unsafe extern "C" fn(name: *const c_char) -> *mut c_void;
+/// Alias for `Result<(), String>`.
 pub type CallResult = Result<(), String>;
 
+/// Returns last API error information string. The same string is returned from
+/// API calls which return Result<_, String>.
+/// Note: error string may be empty even if an API call failed, the output
+/// Result<_, String> will return an Err("Unknown error") in that case.
 pub fn get_last_error() -> Option<String> {
     unsafe {
         let ptr = BLZ_GetLastError().as_ref();
@@ -75,6 +138,29 @@ pub fn get_last_error() -> Option<String> {
     }
 }
 
+/// Loads OpenGL functions used by this library. Requires an active window with
+/// an OpenGL context (version 3.0 core and above).
+/// # Example (using SDL2)
+/// ```
+///    use blaze_rs::load;
+///    use sdl2::video::GLProfile;
+///
+///    let context = sdl2::init().unwrap();
+///    let video_sys = context.video().unwrap();
+///    let gl_attr = video_sys.gl_attr();
+///    gl_attr.set_context_profile(GLProfile::Core);
+///    gl_attr.set_context_version(3, 0);
+///    let window = video_sys.window("Test", 800, 600)
+///        .opengl()
+///        .build()
+///        .unwrap();
+///    let _ctx = window.gl_create_context().unwrap();
+///
+///    match load(sdl2::sys::SDL_GL_GetProcAddress) {
+///        Ok(_) => {}
+///        Err(e) => panic!(e),
+///    }
+/// ```
 pub fn load(loader: GLProcLoader) -> CallResult {
     unsafe {
         match BLZ_Load(Some(loader)) {
@@ -84,16 +170,21 @@ pub fn load(loader: GLProcLoader) -> CallResult {
     }
 }
 
+/// Sets viewport dimensions. All sprite position and size calculations will be
+/// based on them. In most cases, you should pass the window size in pixels here,
+/// or a scaled value for pixel-art based games, for example.
 pub fn set_viewport(width: u32, height: u32) -> CallResult {
     unsafe { wrap_result(BLZ_SetViewport(width as i32, height as i32)) }
 }
 
+/// Sets the color which is used for clearing the framebuffer.
 pub fn set_clear_color(color: Color) {
     unsafe {
         BLZ_SetClearColor(color.into());
     }
 }
 
+/// Clears the current framebuffer.
 pub fn clear() {
     unsafe {
         BLZ_Clear();

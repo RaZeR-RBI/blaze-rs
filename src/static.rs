@@ -48,11 +48,11 @@ impl<'b, 't: 'b> StaticBatch<'b, 't> {
         unsafe {
             wrap_result(BLZ_DrawStatic(
                 self.raw,
-                position,
-                srcRectangle.as_raw(),
+                position.into(),
+                srcRectangle.map(|r| r.into()).as_raw(),
                 rotationInRadians,
-                origin.as_raw(),
-                scale.as_raw(),
+                origin.map(|v| v.into()).as_raw(),
+                scale.map(|v| v.into()).as_raw(),
                 color.into(),
                 flip as u32,
             ))
@@ -60,7 +60,8 @@ impl<'b, 't: 'b> StaticBatch<'b, 't> {
     }
 
     pub fn lower_draw(&self, quad: &SpriteQuad) -> CallResult {
-        unsafe { wrap_result(BLZ_LowerDrawStatic(self.raw, quad)) }
+        let q: BLZ_SpriteQuad = quad.into();
+        unsafe { wrap_result(BLZ_LowerDrawStatic(self.raw, &q)) }
     }
 
     pub fn present(&self, transformMatrix: &[f32; 16]) -> CallResult {
