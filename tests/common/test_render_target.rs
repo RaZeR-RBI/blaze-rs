@@ -14,8 +14,6 @@ pub fn test_render_target(window: &Window) {
     assert!(RenderTarget::create(0, 0).is_err());
     let target =
         RenderTarget::create(WINDOW_WIDTH, WINDOW_HEIGHT).expect("Cannot create render target");
-    assert_eq!(target.get_width(), WINDOW_WIDTH);
-    assert_eq!(target.get_height(), WINDOW_HEIGHT);
     let texture =
         Texture::from_file("tests/jellybeans.png", ImageChannels::Auto, None, ImageFlags::None)
             .expect("Cannot load texture");

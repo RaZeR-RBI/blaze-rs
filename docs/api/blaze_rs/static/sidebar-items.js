@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["StaticBatch","Defines a static sprite batching object."],["StaticBatchOpts","Defines creation options for static sprite batching object (StaticBatch)."]]});

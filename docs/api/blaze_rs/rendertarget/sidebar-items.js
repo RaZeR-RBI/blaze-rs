@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["RenderTarget","Defines a render target, which is, basically, an offscreen buffer that can be used as a texture."]]});

@@ -1,0 +1,10 @@
+(function() {var implementors = {};
+implementors["blaze_rs"] = [{text:"impl&lt;'a&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html\" title=\"trait core::ops::drop::Drop\">Drop</a> for <a class=\"struct\" href=\"blaze_rs/dynamic/struct.SpriteBatch.html\" title=\"struct blaze_rs::dynamic::SpriteBatch\">SpriteBatch</a>&lt;'a&gt;",synthetic:false,types:["blaze_rs::dynamic::SpriteBatch"]},{text:"impl&lt;'a&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html\" title=\"trait core::ops::drop::Drop\">Drop</a> for <a class=\"struct\" href=\"blaze_rs/rendertarget/struct.RenderTarget.html\" title=\"struct blaze_rs::rendertarget::RenderTarget\">RenderTarget</a>&lt;'a&gt;",synthetic:false,types:["blaze_rs::rendertarget::RenderTarget"]},{text:"impl&lt;'a&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html\" title=\"trait core::ops::drop::Drop\">Drop</a> for <a class=\"struct\" href=\"blaze_rs/shader/struct.Shader.html\" title=\"struct blaze_rs::shader::Shader\">Shader</a>&lt;'a&gt;",synthetic:false,types:["blaze_rs::shader::Shader"]},{text:"impl&lt;'b, 't: 'b&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html\" title=\"trait core::ops::drop::Drop\">Drop</a> for <a class=\"struct\" href=\"blaze_rs/static/struct.StaticBatch.html\" title=\"struct blaze_rs::static::StaticBatch\">StaticBatch</a>&lt;'b, 't&gt;",synthetic:false,types:["blaze_rs::static::StaticBatch"]},{text:"impl&lt;'a&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html\" title=\"trait core::ops::drop::Drop\">Drop</a> for <a class=\"struct\" href=\"blaze_rs/texture/struct.Texture.html\" title=\"struct blaze_rs::texture::Texture\">Texture</a>&lt;'a&gt;",synthetic:false,types:["blaze_rs::texture::Texture"]},];
+
+            if (window.register_implementors) {
+                window.register_implementors(implementors);
+            } else {
+                window.pending_implementors = implementors;
+            }
+        
+})()

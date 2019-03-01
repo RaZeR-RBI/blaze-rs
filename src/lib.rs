@@ -3,6 +3,17 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 
+//! This crate wraps the [blaze library](https://github.com/razer-rbi/blaze)
+//! which is geared towards efficient and cross-platform 2D sprite drawing using OpenGL.
+//! Supported features:
+//! * Dynamic batched sprite drawing
+//! * Static batched sprite drawing
+//! * Immediate drawing
+//! * Texture loading
+//! * Render targets
+//! * Custom shaders
+//! * Screenshot saving
+
 #[macro_use]
 extern crate bitflags;
 extern crate bytes;
@@ -153,9 +164,9 @@ pub type GLProcLoader = unsafe extern "C" fn(name: *const c_char) -> *mut c_void
 pub type CallResult = Result<(), String>;
 
 /// Returns last API error information string. The same string is returned from
-/// API calls which return Result<_, String>.
+/// API calls which return `Result<..., String>`.
 /// Note: error string may be empty even if an API call failed, the output
-/// Result<_, String> will return an Err("Unknown error") in that case.
+/// `Result<..., String>` will return an `Err("Unknown error")` in that case.
 pub fn get_last_error() -> Option<String> {
     unsafe {
         let ptr = BLZ_GetLastError().as_ref();

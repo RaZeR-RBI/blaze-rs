@@ -4,9 +4,9 @@ enum_from_primitive! {
     #[cfg_attr(tarpaulin, skip)]
     #[derive(Debug, PartialEq, Copy, Clone)]
     /// Defines a blend factor (F_src or F_dst) for the blending equation:
-    /// ```ignore
-    /// C_result = C_src * F_src + C_dst * F_dst
-    /// ```
+    ///
+    /// `C_result = C_src * F_src + C_dst * F_dst`
+    ///
     /// Where:
     /// * `C_result` - output color
     /// * `C_src` - source color
@@ -40,9 +40,9 @@ enum_from_primitive! {
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 /// Defines a pair of blend factors (F_src and F_dst) for the blending equation:
-/// ```ignore
-/// C_result = C_src * F_src + C_dst * F_dst
-/// ```
+/// 
+/// `C_result = C_src * F_src + C_dst * F_dst`
+/// 
 /// Where:
 /// * `C_result` - output color
 /// * `C_src` - source color

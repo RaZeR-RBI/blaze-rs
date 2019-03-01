@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["InitFlags","Defines flags that can be used for SpriteBatch creation."],["SpriteBatch","Defines a dynamic sprite batching object. "],["SpriteBatchOpts","Defines creation options for dynamic sprite batching object (SpriteBatch):"]]});

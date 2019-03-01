@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Shader","Defines a handle to a custom shader."]],"type":[["UniformLoc","Defines type for shader uniform location type."]]});
