@@ -4,9 +4,8 @@
 
 Rust wrapper for [blaze](https://github.com/razer-rbi/blaze) library.
 
-# Links
----
-__[API Documentation](https://razer-rbi.github.io/blaze-rs/api/blaze-rs/index.html)__
+__[API Documentation](https://razer-rbi.github.io/blaze-rs/api/blaze_rs/index.html)__
+
 __[Test coverage](https://razer-rbi.github.io/blaze-rs/coverage/index.html)__
 
 # Features
@@ -29,6 +28,9 @@ blaze_rs = { git = "https://github.com/RaZeR-RBI/blaze-rs.git" }
 To use this wrapper, you must install the [blaze](https://github.com/razer-rbi/blaze) library.
 
 Make sure you have the compiled library in the system's linker path.
+
+# Examples
+You can check the [tests directory](https://github.com/RaZeR-RBI/blaze-rs/tree/master/tests/common) to see what you can do.
 
 # Running tests
 The build script uses an environment variable called `BLAZE_PATH`, which can
